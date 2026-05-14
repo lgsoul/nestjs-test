@@ -26,7 +26,8 @@ COPY . .
 
 # 生成 Prisma Client
 # 根据 schema.prisma 生成到 src/generated/prisma/
-RUN npx prisma generate
+RUN npm install -g prisma
+RUN prisma generate
 
 # 编译 TypeScript 到 dist/
 RUN npm run build
