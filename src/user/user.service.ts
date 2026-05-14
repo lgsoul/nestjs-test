@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './user'
-import { CreateUserDto } from './dto/create-user.dot';
+import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -13,9 +14,8 @@ export class UserService {
     
      const post = await this.prisma.user.create({
       data: {
-        id: user.id,
-        name: user.name,
         email: user.email,
+        name: user.name,
       },
     });
     return {
@@ -44,7 +44,7 @@ export class UserService {
       },
     };
   }
-  updateUser(id: string, user: User) {
+  update(id: string, user: User) {
     return {
       data: {
         id: id,
@@ -54,7 +54,7 @@ export class UserService {
       },
     };
   }
-  deleteUser(id: string) {
+  delete(id: number) {
     return {
       data: {
         id: id,
@@ -63,5 +63,50 @@ export class UserService {
         password: 'password',
       },
     };
+  }
+  async updateUser(id: number, user: UpdateUserDto) {
+    const post = await this.prisma.user.update({
+      where: { id: id },
+      data: {
+        name: user.name,
+        email: user.email,
+      },
+    });
+    return {
+      data: post,
+      message: 'User updated successfully',
+      status: 'success',
+    };
+  }
+  async deleteUser(id:number){
+    const exits = await this.prisma.user.findUnique({
+      where:{id:id}
+    })
+    if(!exits){
+      return {
+        success:false,
+        message:"未找到该用户"
+      }
+    }
+    await this.prisma.user.delete({
+      where:{id:id}
+    })
+    return {
+      success:true,
+      message:"删除成功"
+    }
+  }
+  async getUserOne(id:number){
+    const post = await this.prisma.user.findMany({})
+    if(!post){
+      return {
+        success:false,
+        message:"未找到"
+      }
+    }
+    return {
+      success:true,
+      data:post
+    }
   }
 }
